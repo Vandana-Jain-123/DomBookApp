@@ -62,51 +62,49 @@
 <body>
     <div id="nav"></div>
 
+    <form id="form">
+        <h2>Add new Books</h2>
+        <input id="title" type="text" placeholder="Title name">
+        <input id="author" type="text" placeholder="Author name">
+        <input id="category" type="text" placeholder="Category name">
+        <select name="" id="category">
+            <option value="">Select Category</option>
+            <option>Fiction</option>
+            <option>Comedy</option>
+            <option>Technical</option>
+        </select>
+        <button id="btn">Submit</button>
+    </form>
+
+
     <div id="container">
 
-        <form id="form">
-            <h2>Login Please....</h2>
-            <input id="email" type="email" placeholder="enter your email">
-            <input id="password" type="password" placeholder="enter your password">
-            <button id="btn">Submit</button>
-        </form>
     </div>
 
-    <div id="footer"></div>
+    <div id="footer">
+
+    </div>
 
     <script type="module">
-        let getLocalData = JSON.parse(localStorage.getItem("loginData")) || []
 
-        import { baseUrl } from "./script/baseUrl.js"
+        const loginData = JSON.parse(localStorage.getItem("loginData"));
+        if (!loginData || loginData.email !== "admin@empher.com") {
+            alert("Admin Not Logged In");
+            window.location.href = "index.html";
+        }
+
         let form = document.getElementById("form")
-        let loginButton = document.getElementById("btn")
-        loginButton.addEventListener("click", function (event) {
+        let submitButton = document.getElementById("btn")
+        submitButton.addEventListener("click", function (event) {
             event.preventDefault()
-            let password = form.password.value
-            let email = form.email.value
-            let loginData = { password, email }
-            console.log("loginData", loginData)
-            if (email == "admin@empher.com" && password == "empher@123") {
-                localStorage.setItem('loginData', JSON.stringify({ email }));
 
-                alert("Logged in as Admin.")
-                window.location.href = `admin.html`
-            } else if (email == "user@empher.com" && password == "user@123") {
-                localStorage.setItem('loginData', JSON.stringify({ email }));
+              let title=form.title.value
+               let author = form.author.value
+                let category = form.category.value
+                let bookData={title,author,category}
+                console.log(bookData,"bookData")
 
-                alert("Logged in as User.")
-                window.location.href = `books.html`
-            } else {
-                alert("something went wrong ")
-            }
         })
-
-
-
-
-
-
-
 
 
 
