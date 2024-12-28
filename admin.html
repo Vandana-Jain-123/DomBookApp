@@ -56,6 +56,33 @@
             border: none;
             font-size: 16px;
         }
+
+        #displayData {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+
+        }
+
+        #displayData>div {
+            margin-top: 50px;
+            width: 250px;
+            height: 300px;
+            padding-left: 20px;
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            border: 1px solid rgb(12, 138, 138);
+
+        }
+
+        #displayData>div button {
+            width: 100px;
+            margin-left: 10px;
+            padding: 10px;
+            border: none;
+            background-color: rgb(12, 138, 138);
+            color: white;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -66,7 +93,6 @@
         <h2>Add new Books</h2>
         <input id="title" type="text" placeholder="Title name">
         <input id="author" type="text" placeholder="Author name">
-        <input id="category" type="text" placeholder="Category name">
         <select name="" id="category">
             <option value="">Select Category</option>
             <option>Fiction</option>
@@ -80,13 +106,16 @@
     <div id="container">
 
     </div>
+    <div id="displayData">
+
+    </div>
 
     <div id="footer">
 
     </div>
 
     <script type="module">
-
+        import { baseUrl } from "./script/baseUrl.js"
         const loginData = JSON.parse(localStorage.getItem("loginData"));
         if (!loginData || loginData.email !== "admin@empher.com") {
             alert("Admin Not Logged In");
@@ -98,16 +127,162 @@
         submitButton.addEventListener("click", function (event) {
             event.preventDefault()
 
-              let title=form.title.value
-               let author = form.author.value
-                let category = form.category.value
-                let bookData={title,author,category}
-                console.log(bookData,"bookData")
+            let title = form.title.value
+            let author = form.author.value
+            let category = form.category.value
+            let bookData = { title, author, category }
+            console.log(bookData, "bookData")
+            getBookData(`${baseUrl}/books`, bookData)
 
         })
 
+        function showData(userArr) {
+            let displayContainer = document.getElementById("displayData")
+            displayContainer.innerHTML = ""
+            userArr.forEach(e => {
+                let card = document.createElement("div")
+                let title = document.createElement("h4")
+                title.textContent = `Title-Name: ${e.title}`
+                let author = document.createElement("h4")
+                author.textContent = `Author-Name:${e.author}`
+                let category = document.createElement("h4")
+                category.textContent = `Category:${e.category}`
+                let isAvailable = document.createElement("h4")
+                isAvailable.textContent = `isAvailable:${true}`
+              
 
 
+                let borrowedDays = document.createElement("h4")
+                borrowedDays.textContent = `borrowedDays: ${null}`
+
+                // delete button
+                let deleteBook = document.createElement("button")
+                deleteBook.textContent = "DeleteBook"
+                deleteBook.addEventListener("click", function () {
+                    deleteData(`${baseUrl}/books`, e.id)
+                })
+
+                // edit button 
+                let veryBook = document.createElement("button")
+                veryBook.textContent = "veryBook"
+                veryBook.addEventListener("click", function () {
+                    getDataInForm(e)
+
+                })
+
+
+                card.append(title, author, category, isAvailable, deleteBook, veryBook)
+                displayContainer.append(card)
+
+            });
+
+
+        }
+
+        function getApiData(url) {
+            fetch(url)
+                .then((res) => {
+                    return res.json()
+                }).then((result) => {
+                    console.log(result, "getApi")
+                    showData(result)
+                    return result
+                }).catch((err) => {
+                    console.log("err", err)
+                })
+
+        }
+
+        //function for fetching data from baseUrl
+
+        //  yah data isliye fetch krte h tak server ka data la 
+        // sake or jo hm userId form me  dete h usme match krenge 
+        function getBookData(url, userObjData) {
+            fetch(url)
+                .then((res) => {
+                    return res.json()
+                })
+                .then((result) => {
+
+                    // here call function post data in todo-server if id not present
+                    postBookData(url, userObjData)
+
+                })
+                .catch((err) => {
+                    console.log(err, "error")
+                })
+        }
+
+
+        // Post data in todo server
+
+        function postBookData(url, userObjData) {
+            console.log(url, "url", userObjData, "objdata")
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify(userObjData)
+
+            }).then((res) => {
+                return res.json()
+            }).then((result) => {
+                alert("data post successfully ")
+
+                form.reset()
+                getApiData(url)
+                console.log("result", result)
+                return result
+
+            }).catch((err) => {
+                alert("something went wrong")
+                console(err, "errror")
+            })
+
+
+        }
+
+
+        // Dlete Data of Book
+        function deleteData(url, id) {
+            fetch(`${url}/${id}`, {
+                method: "DELETE",
+                headers: { "content-type": "application/json" }
+            }).then((res) => {
+                return res.json()
+            }).then((result) => {
+                alert("Are you sure to Delete..?")
+                getApiData(url)
+                console.log(result, "result in delete api")
+                return result
+            }).catch((err) => {
+                console.log("error in delete api", err)
+            })
+
+        }
+
+         function editData(url, id, obj) {
+            fetch(`${url}/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(obj)
+
+            }).then((res) => {
+                return res.json()
+            }).then((result) => {
+                alert("data Verify successfully")
+              
+
+                getApiData(url)
+                form.reset()
+                console.log(result, "edit kro data ")
+                return result
+            })
+
+
+        }
+        getApiData(`${baseUrl}/books`)
 
     </script>
 
