@@ -67,7 +67,7 @@
         #displayData>div {
             margin-top: 50px;
             width: 250px;
-            height: 300px;
+            height: 350px;
             padding-left: 20px;
             box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
             border: 1px solid rgb(12, 138, 138);
@@ -82,6 +82,12 @@
             background-color: rgb(12, 138, 138);
             color: white;
             border-radius: 10px;
+        }
+
+        .unavalable {
+            cursor: not-allowed;
+            color: #666;
+            background-color: #666;
         }
     </style>
 </head>
@@ -130,7 +136,7 @@
             let title = form.title.value
             let author = form.author.value
             let category = form.category.value
-            let bookData = { title, author, category }
+            let bookData = { title, author, category, isVerified: false }
             console.log(bookData, "bookData")
             getBookData(`${baseUrl}/books`, bookData)
 
@@ -141,15 +147,21 @@
             displayContainer.innerHTML = ""
             userArr.forEach(e => {
                 let card = document.createElement("div")
+                let image = document.createElement("img");
+                image.src = e.imageUrl || "https://m.media-amazon.com/images/I/71ZB18P3inL._SY522_.jpg"; // Use placeholder if imageUrl is not provided
+                image.alt = e.title || "Book Image";
+                image.style.width = "100%";
+                image.style.height = "100px";
                 let title = document.createElement("h4")
                 title.textContent = `Title-Name: ${e.title}`
                 let author = document.createElement("h4")
                 author.textContent = `Author-Name:${e.author}`
                 let category = document.createElement("h4")
                 category.textContent = `Category:${e.category}`
-                let isAvailable = document.createElement("h4")
-                isAvailable.textContent = `isAvailable:${true}`
-              
+                let isVerified = document.createElement("h4")
+                isVerified.textContent = `isisVerified:${e.isVerified}`
+
+
 
 
                 let borrowedDays = document.createElement("h4")
@@ -163,21 +175,47 @@
                 })
 
                 // edit button 
-                let veryBook = document.createElement("button")
-                veryBook.textContent = "veryBook"
+
+
+
+                let veryBook = document.createElement("button");
+                veryBook.textContent = "Verify Book";
+
                 veryBook.addEventListener("click", function () {
-                    getDataInForm(e)
+                    verifyBook(`${baseUrl}/books`, e.id, veryBook); // Pass e.id as bookId
+                });
 
-                })
 
 
-                card.append(title, author, category, isAvailable, deleteBook, veryBook)
+                card.append(image, title, author, category, isVerified, deleteBook, veryBook)
                 displayContainer.append(card)
 
             });
 
-
         }
+        // verifyed  
+        // Verify functionality
+        async function verifyBook(url, bookId, button) {
+            if (confirm("Are you sure to Verify..?") === true) {
+                await fetch(`${url}/${bookId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ isVerified: true })
+                })
+                    .then((res) => res.json())
+                    .then(() => {
+                        alert("Book verified successfully!");
+                        button.disabled = true;
+                        getApiData(url);
+                    })
+                    .catch((err) => {
+                        console.error("Error verifying the book:", err);
+                    });
+            }
+        }
+
+
+        ////////////
 
         function getApiData(url) {
             fetch(url)
@@ -262,26 +300,30 @@
 
         }
 
-         function editData(url, id, obj) {
-            fetch(`${url}/${id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(obj)
+        // function editData(url, id, obj) {
+        //     fetch(`${url}/${id}`, {
+        //         method: "PATCH",
+        //         headers: { "Content-Type": "application/json" },
+        //         body: JSON.stringify(obj)
 
-            }).then((res) => {
-                return res.json()
-            }).then((result) => {
-                alert("data Verify successfully")
-              
-
-                getApiData(url)
-                form.reset()
-                console.log(result, "edit kro data ")
-                return result
-            })
+        //     }).then((res) => {
+        //         return res.json()
+        //     }).then((result) => {
+        //         alert("data Verify successfully")
 
 
-        }
+        //         getApiData(url)
+        //         form.reset()
+        //         console.log(result, "edit kro data ")
+        //         return result
+        //     })
+
+
+
+
+
+
+
         getApiData(`${baseUrl}/books`)
 
     </script>

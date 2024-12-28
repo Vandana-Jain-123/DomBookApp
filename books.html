@@ -78,17 +78,13 @@
         window.location.href = "index.html";
     }
 
-
-    let Available=document.getElementById("avalable ")
-    Available.addEventListener("click",fucntion(event){
-        getApiData(``)
-    })
-
-            function showData(userArr) {
+function showData(userArr) {
                     let displayContainer = document.getElementById("displayData")
                     displayContainer.innerHTML = ""
                     userArr.forEach(e => {
                         let card = document.createElement("div")
+                        let image=document.createElement("img")
+                        image.src="https://m.media-amazon.com/images/I/71ZB18P3inL._SY522_jpg"
                         let title = document.createElement("h4")
                         title.textContent = `Title-Name: ${e.title}`
                         let author = document.createElement("h4")
@@ -96,7 +92,7 @@
                         let category = document.createElement("h4")
                         category.textContent = `Category:${e.category}`
                         let isAvailable = document.createElement("h4")
-                        isAvailable.textContent = `isAvailable:${true}`
+                        isAvailable.textContent = `isAvailable:${e.isAvailable}`
 
 
 
@@ -119,7 +115,7 @@
                         })
 
 
-                        card.append(title, author, category, isAvailable, deleteBook, veryBook)
+                        card.append(title, author, category, isAvailable, deleteBook, veryBook )
                         displayContainer.append(card)
 
                     });
